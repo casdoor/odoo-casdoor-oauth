@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="casdoor_oauth.list">
+      <field name="name">casdoor_oauth list</field>
+      <field name="model">casdoor_oauth.casdoor_oauth</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </tree>
+      </field>
+    </record>
+
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="casdoor_oauth.action_window">
+      <field name="name">casdoor_oauth window</field>
+      <field name="res_model">casdoor_oauth.casdoor_oauth</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="casdoor_oauth.action_server">
+      <field name="name">casdoor_oauth server</field>
+      <field name="model_id" ref="model_casdoor_oauth_casdoor_oauth"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="casdoor_oauth" id="casdoor_oauth.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="casdoor_oauth.menu_1" parent="casdoor_oauth.menu_root"/>
+    <menuitem name="Menu 2" id="casdoor_oauth.menu_2" parent="casdoor_oauth.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="casdoor_oauth.menu_1_list" parent="casdoor_oauth.menu_1"
+              action="casdoor_oauth.action_window"/>
+    <menuitem name="Server to list" id="casdoor_oauth" parent="casdoor_oauth.menu_2"
+              action="casdoor_oauth.action_server"/>
+-->
+  </data>
+</odoo>
