@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="casdoor_oauth_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">casdoor.oauth.res.config.settings.view.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="80"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Casdoor OAuth" string="Casdoor OAuth" data-key="casdoor_oauth">
+
+                    <div id="casdoor_oauth">
+                        <h2>Casdoor OAuth</h2>
+                        <div class="row mt16 o_settings_container" name="casdoor_oauth_container">
+                            <div class="col-12 col-lg-6 o_setting_box" id="casdoor_oauth_settings">
+                                <div class="o_setting_right_pane">
+                                    <!-- Settings -->
+                                    <group>
+                                        <field name="name"/>
+                                    </group>
+
+                                    <group>
+                                        <field name="client_id"/>
+                                    </group>
+
+                                    <group>
+                                        <field name="auth_endpoint"/>
+                                    </group>
+
+                                    <group>
+                                        <field name="data_endpoint"/>
+                                    </group>
+
+                                    <group>
+                                        <field name="validation_endpoint"/>
+                                    </group>
+
+                                    <group>
+                                        <field name="enabled"/>
+                                    </group>
+                                    <!-- Settings -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

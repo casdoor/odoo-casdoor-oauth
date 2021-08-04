@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 
+class ResConfigSettings(models.TransientModel):
 
-class CasdoorOAuthProvider(models.Model):
-    _name = 'casdoor.oauth.provider'
-    _description = 'Casdoor OAuth2 provider'
-    _order = 'sequence, name'
+    _inherit = 'res.config.settings'
 
     name = fields.Char(string='Provider name', required=True)  # Name of the OAuth2 entity, Google, etc
     client_id = fields.Char(string='Client ID')  # Our identifier
