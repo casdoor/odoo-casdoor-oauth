@@ -3,7 +3,7 @@
 
 This plugin utilizes Casdoor's OAuth function to log in Odoo for convenience.  
 
-View the [**Odoo module**](https://apps.odoo.com/apps/modules/14.0/Casdoor-OAuth/)
+View the [**Odoo module**](https://apps.odoo.com/apps/modules/14.0/casdoor_oauth/)
 
 <br>
 
