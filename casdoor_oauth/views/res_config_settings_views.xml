@@ -13,33 +13,12 @@
                         <h2>Casdoor OAuth</h2>
                         <div class="row mt16 o_settings_container" name="casdoor_oauth_container">
                             <div class="col-12 col-lg-6 o_setting_box" id="casdoor_oauth_settings">
-                                <div class="o_setting_right_pane">
-                                    <!-- Settings -->
-                                    <group>
-                                        <field name="name"/>
-                                    </group>
 
-                                    <group>
-                                        <field name="client_id"/>
-                                    </group>
+                                <group>
+                                    <field name="auth_oauth_casdoor_client_id"/>
+                                    <field name="auth_oauth_casdoor_enabled"/>
+                                </group>
 
-                                    <group>
-                                        <field name="auth_endpoint"/>
-                                    </group>
-
-                                    <group>
-                                        <field name="data_endpoint"/>
-                                    </group>
-
-                                    <group>
-                                        <field name="validation_endpoint"/>
-                                    </group>
-
-                                    <group>
-                                        <field name="enabled"/>
-                                    </group>
-                                    <!-- Settings -->
-                                </div>
                             </div>
                         </div>
                     </div>

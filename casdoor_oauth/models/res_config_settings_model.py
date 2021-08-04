@@ -8,13 +8,23 @@ class ResConfigSettings(models.TransientModel):
 
     _inherit = 'res.config.settings'
 
-    name = fields.Char(string='Provider name', required=True)  # Name of the OAuth2 entity, Google, etc
-    client_id = fields.Char(string='Client ID')  # Our identifier
-    auth_endpoint = fields.Char(string='Authentication URL', required=True)  # OAuth provider URL to authenticate users
-    scope = fields.Char()  # OAUth user data desired to access
-    validation_endpoint = fields.Char(string='Validation URL', required=True)  # OAuth provider URL to validate tokens
-    data_endpoint = fields.Char(string='Data URL')
-    enabled = fields.Boolean(string='Allowed')
-    css_class = fields.Char(string='CSS class', default='fa fa-fw fa-sign-in text-primary')
-    body = fields.Char(required=True, help='Link text in Login Dialog', translate=True)
-    sequence = fields.Integer(default=10)
+    auth_oauth_casdoor_enabled = fields.Boolean(string='Active')
+    auth_oauth_casdoor_client_id = fields.Char(string='Casdoor Client ID')  # Our identifier
+
+    @api.model
+    def get_values(self):
+        res = super(ResConfigSettings, self).get_values()
+        casdoor_provider = self.env.ref('casdoor_oauth.provider_casdoor', False)
+        casdoor_provider and res.update(
+            auth_oauth_casdoor_enabled=casdoor_provider.enabled,
+            auth_oauth_casdoor_client_id=casdoor_provider.client_id,
+        )
+        return res
+
+    def set_values(self):
+        super(ResConfigSettings, self).set_values()
+        casdoor_provider = self.env.ref('casdoor_oauth.provider_casdoor', False)
+        casdoor_provider and casdoor_provider.write({
+            'enabled': self.auth_oauth_casdoor_enabled,
+            'client_id': self.auth_oauth_casdoor_client_id,
+        })
