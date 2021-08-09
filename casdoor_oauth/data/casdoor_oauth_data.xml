@@ -6,7 +6,7 @@
             <field name="name">Casdoor</field>
             <field name="auth_endpoint">http://test.casbin.com:8000/login/oauth/authorize</field>
             <field name="scope">read</field>
-            <field name="validation_endpoint">test.casbin.com:8000/login/oauth/authorize</field>
+            <field name="validation_endpoint">http://test.casbin.com:8000/login/oauth/tokeninfo</field>
             <field name="data_endpoint"></field>
             <field name="css_class">fa fa-fw fa-key</field>
             <field name="body">Log in with Casdoor</field>
