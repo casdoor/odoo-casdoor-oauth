@@ -7,5 +7,4 @@ class CasdoorOAuthProvider(models.Model):
 
     _inherit = 'auth.oauth.provider'
 
-    cleint_secret = fields.Char(string='Client secret') # the secret for verification
-    
+    client_secret = fields.Char(string='Client secret') # the secret for verification
