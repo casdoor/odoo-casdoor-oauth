@@ -2,11 +2,10 @@
 <odoo>
     <data>
         <record id="provider_casdoor" model="auth.oauth.provider">
-            <!-- https://door.casbin.com/login/oauth/authorize?client_id=014ae4bd048734ca2dea&response_type=code&redirect_uri=https://forum.casbin.com/callback&scope=read&state=app-casbin-forum -->
             <field name="name">Casdoor</field>
             <field name="auth_endpoint">http://test.casbin.com:8000/login/oauth/authorize</field>
             <field name="scope">read</field>
-            <field name="validation_endpoint">http://test.casbin.com:8000/login/oauth/tokeninfo</field>
+            <field name="validation_endpoint">http://test.casbin.com:8000/api/login/oauth/access_token</field>
             <field name="data_endpoint"></field>
             <field name="css_class">fa fa-fw fa-key</field>
             <field name="body">Log in with Casdoor</field>
