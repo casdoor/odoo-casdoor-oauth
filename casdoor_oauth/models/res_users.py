@@ -19,13 +19,13 @@ class ResUsers(models.Model):
         oauth_provider = self.env['auth.oauth.provider'].browse(provider)
         if oauth_provider.name == "Casdoor":
             params = {
-                "id": "built-in/admin",
+                "id": "built-in/" + str(oauth_provider.casdoor_username),
                 "clientId": oauth_provider.client_id,
                 "clientSecret": oauth_provider.client_secret,
             }
             return requests.get(endpoint, params=params).json()
         else:
-            return requests.get(endpoint, params={'access_token': access_token}).json()
+            super(ResUsers, self)._auth_oauth_rpc(endpoint, access_token)
 
     @api.model
     def _auth_oauth_validate(self, provider, access_token):
@@ -44,11 +44,6 @@ class ResUsers(models.Model):
 
     @api.model
     def auth_oauth(self, provider, params):
-        # Advice by Google (to avoid Confused Deputy Problem)
-        # if validation.audience != OUR_CLIENT_ID:
-        #   abort()
-        # else:
-        #   continue with the process
         access_token = params.get('access_token') 
         oauth_provider = self.env['auth.oauth.provider'].browse(provider)
         if oauth_provider.name == "Casdoor":
