@@ -2,3 +2,4 @@
 
 from . import res_config_settings
 from . import casdoor_auth_oauth
+from . import res_users
