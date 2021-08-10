@@ -16,6 +16,7 @@
 
                                 <group>
                                     <field name="auth_oauth_casdoor_client_id"/>
+                                    <field name="auth_oauth_casdoor_client_secret"/>
                                     <field name="auth_oauth_casdoor_enabled"/>
                                 </group>
 
