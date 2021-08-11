@@ -1,13 +1,22 @@
 # odoo-casdoor-oauth
 *Under construction...*  
 
-This plugin utilizes Casdoor's OAuth function to log in Odoo for convenience.
-<br>
+This plugin utilizes Casdoor's OAuth function to log in Odoo for convenience.  
 
-Demo screenshot:
-
-![Module Screenshot](https://ffyuanda.github.io/assets/images/Odoo_Module_Screenshot_0.png)
+View the [**Odoo module**](https://apps.odoo.com/apps/modules/14.0/casdoor_oauth/)
 
 <br>
 
-View the [**Odoo module**](https://apps.odoo.com/apps/modules/14.0/Casdoor-OAuth/)
+Demo screenshots:
+
+![Settings Screenshot](/casdoor_oauth/static/description/settings_sidebar_screenshot.png)
+
+<br>
+
+![Providers Screenshot](/casdoor_oauth/static/description/oauth_providers_screenshot.png)
+
+<br>
+
+![Login Screenshot](/casdoor_oauth/static/description/login_page_screenshot.png)
+
+<br>
