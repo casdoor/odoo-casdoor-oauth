@@ -15,26 +15,27 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     @api.model
-    def _auth_oauth_rpc(self, endpoint, provider, access_token):
-        oauth_provider = self.env['auth.oauth.provider'].browse(provider)
+    def _auth_oauth_rpc(self, endpoint, access_token, provider=None):
+        oauth_provider = self.env['auth.oauth.provider'].browse(provider)        
         if oauth_provider.name == "Casdoor":
             params = {
                 "id": "built-in/" + str(oauth_provider.casdoor_username),
                 "clientId": oauth_provider.client_id,
                 "clientSecret": oauth_provider.client_secret,
             }
-            return requests.get(endpoint, params=params).json()
+            return_json = requests.get(endpoint, params=params).json()
+            if return_json is None:
+                raise ValueError("The request params do not comply with Casdoor's database.")
+            return return_json
+            
         else:
-            super(ResUsers, self)._auth_oauth_rpc(endpoint, access_token)
+            return super()._auth_oauth_rpc(endpoint, access_token)
 
     @api.model
     def _auth_oauth_validate(self, provider, access_token):
-        """ return the validation data corresponding to the access token """
-        oauth_provider = self.env['auth.oauth.provider'].browse(provider)
-        if oauth_provider.name == "Casdoor":
-            validation = self._auth_oauth_rpc(oauth_provider.validation_endpoint, provider, access_token)
-        else:
-            validation = self._auth_oauth_rpc(oauth_provider.validation_endpoint, access_token)
+        """ return the validation data corresponding to the access token """        
+        oauth_provider = self.env['auth.oauth.provider'].browse(provider)        
+        validation = self._auth_oauth_rpc(oauth_provider.validation_endpoint, access_token, provider)
         if validation.get("error"):
             raise Exception(validation['error'])
         if oauth_provider.data_endpoint:
@@ -62,8 +63,7 @@ class ResUsers(models.Model):
             access_token = r.json().get("access_token")
             if "access_token" not in params:
                 params["access_token"] = access_token
-
-        validation = self._auth_oauth_validate(provider, access_token)
+        validation = self._auth_oauth_validate(provider, access_token)        
         # required check
         if not validation.get('user_id'):
             # Workaround: facebook does not send 'user_id' in Open Graph Api
