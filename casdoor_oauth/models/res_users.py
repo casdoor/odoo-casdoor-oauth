@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import json
-
+import jwt
 import requests
 
 from odoo import api, fields, models
@@ -13,21 +13,18 @@ base.models.res_users.USER_PRIVATE_FIELDS.append('oauth_access_token')
 
 class ResUsers(models.Model):
     _inherit = 'res.users'
+    
 
     @api.model
     def _auth_oauth_rpc(self, endpoint, access_token, provider=None):
         oauth_provider = self.env['auth.oauth.provider'].browse(provider)        
         if oauth_provider.name == "Casdoor":
-            params = {
-                "id": "built-in/" + str(oauth_provider.casdoor_username),
-                "clientId": oauth_provider.client_id,
-                "clientSecret": oauth_provider.client_secret,
-            }
-            return_json = requests.get(endpoint, params=params).json()
+            casdoor_key = "CasdoorSecret"
+            algorithms = "HS256"
+            return_json = jwt.decode(access_token, casdoor_key, algorithms=algorithms, audience=oauth_provider.client_id)
             if return_json is None:
                 raise ValueError("The request params do not comply with Casdoor's database.")
-            return return_json
-            
+            return return_json            
         else:
             return super()._auth_oauth_rpc(endpoint, access_token)
 
@@ -69,6 +66,8 @@ class ResUsers(models.Model):
             # Workaround: facebook does not send 'user_id' in Open Graph Api
             if validation.get('id'):
                 validation['user_id'] = validation['id']
+            elif validation.get('username'):
+                validation['user_id'] = validation['username']
             else:
                 raise AccessDenied()
 

@@ -15,7 +15,6 @@
                             <div class="col-12 col-lg-6 o_setting_box" id="casdoor_oauth_settings">
 
                                 <group>
-                                    <field name="auth_oauth_casdoor_username"/>
                                     <field name="auth_oauth_casdoor_client_id"/>
                                     <field name="auth_oauth_casdoor_client_secret"/>
                                     <field name="auth_oauth_casdoor_enabled"/>
