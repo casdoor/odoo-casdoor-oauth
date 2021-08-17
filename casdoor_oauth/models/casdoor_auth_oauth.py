@@ -8,4 +8,3 @@ class CasdoorOAuthProvider(models.Model):
     _inherit = 'auth.oauth.provider'
 
     client_secret = fields.Char(string='Client secret') # the secret for verification
-    casdoor_username = fields.Char(string='Casdoor username') # Casdoor's username of current user
