@@ -22,8 +22,6 @@ class ResUsers(models.Model):
             casdoor_key = "CasdoorSecret"
             algorithms = "HS256"
             return_json = jwt.decode(access_token, casdoor_key, algorithms=algorithms, audience=oauth_provider.client_id)
-            if return_json is None:
-                raise ValueError("The request params do not comply with Casdoor's database.")
             return return_json            
         else:
             return super()._auth_oauth_rpc(endpoint, access_token)

@@ -11,6 +11,7 @@ class ResConfigSettings(models.TransientModel):
     auth_oauth_casdoor_enabled = fields.Boolean(string='Active')
     auth_oauth_casdoor_client_id = fields.Char(string='Casdoor Client ID')  # Our identifier
     auth_oauth_casdoor_client_secret = fields.Char(string='Casdoor Client Secret')
+    auth_oauth_casdoor_authentication_url = fields.Char(string='Casdoor Authentication URL')
 
     @api.model
     def get_values(self):
@@ -19,7 +20,8 @@ class ResConfigSettings(models.TransientModel):
         casdoor_provider and res.update(
             auth_oauth_casdoor_enabled=casdoor_provider.enabled,
             auth_oauth_casdoor_client_id=casdoor_provider.client_id,
-            auth_oauth_casdoor_client_secret=casdoor_provider.client_secret,            
+            auth_oauth_casdoor_client_secret=casdoor_provider.client_secret,
+            auth_oauth_casdoor_authentication_url = casdoor_provider.auth_endpoint,
         )
         return res
 
@@ -29,5 +31,6 @@ class ResConfigSettings(models.TransientModel):
         casdoor_provider and casdoor_provider.write({
             'enabled': self.auth_oauth_casdoor_enabled,
             'client_id': self.auth_oauth_casdoor_client_id,
-            'client_secret': self.auth_oauth_casdoor_client_secret,            
+            'client_secret': self.auth_oauth_casdoor_client_secret,
+            'auth_endpoint': self.auth_oauth_casdoor_authentication_url,
         })
