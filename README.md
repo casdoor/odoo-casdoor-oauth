@@ -77,16 +77,21 @@ View the [**Odoo module**](https://apps.odoo.com/apps/modules/14.0/casdoor_oauth
     ```shell
     YOUR.SERVER.URL/login/oauth/authorize
     ```
-
+11. 
     Then go to your Casdoor instance, click the `Applications` tab on the top navbar.
 
     ![casdoor applications](/casdoor_oauth/static/description/casdoor_app.png)
 
     Select your specified application and find the `Client ID` and `Client secret` in the settings page.
 
-    ![id and secret](/casdoor_oauth/static/description/id_secret.png)    
+    Below the two fields, there is a field called `Redirect URLs`, make sure you fill it in this format (replace the `YOUR.ODOO.INSTANCE.URL` with your Odoo instance's URL):
+    ```shell
+    YOUR.ODOO.INSTANCE.URL/auth_oauth/signin
+    ```
 
-    You should copy and paste these two info into your `Casdoor Client ID` and `Casdoor Client Secret` fields.
+    ![id and secret](/casdoor_oauth/static/description/id_secret_url.png)    
+
+    You should copy these two info and go back to the Odoo setting page and paste them into your `Casdoor Client ID` and `Casdoor Client Secret` fields, respectively.
 
     Then make sure the `Active` checkbox is selected.
 
