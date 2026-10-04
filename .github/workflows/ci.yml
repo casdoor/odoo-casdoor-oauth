@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '14.0'
+  pull_request:
+
+jobs:
+  test:
+    name: Test (Odoo ${{ matrix.odoo }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        odoo: [ '18.0', '19.0' ]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: odoo-casdoor-oauth
+
+      - name: Check out Odoo ${{ matrix.odoo }}
+        run: git clone --depth 1 --branch ${{ matrix.odoo }} https://github.com/odoo/odoo.git odoo
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install system packages
+        run: sudo apt-get update && sudo apt-get install -y libldap2-dev libsasl2-dev libpq-dev
+
+      - name: Install Odoo dependencies
+        run: uv pip install --system -r odoo/requirements.txt
+
+      - name: Run tests
+        shell: bash
+        run: |
+          python odoo/odoo-bin -d casdoor_test \
+            --db_host=localhost --db_user=odoo --db_password=odoo \
+            --addons-path=odoo/addons,odoo-casdoor-oauth \
+            -i casdoor_oauth --test-enable --test-tags /casdoor_oauth \
+            --stop-after-init --http-interface=127.0.0.1 2>&1 | tee odoo.log
+          grep -q "odoo.tests.result: 0 failed, 0 error(s) of" odoo.log
