@@ -1,41 +1,42 @@
+# Copyright 2021 The Casdoor Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import json
-
-import werkzeug.urls
+from urllib.parse import urlencode
 
 from odoo.http import request
+
 from odoo.addons.auth_oauth.controllers.main import OAuthLogin
 
-#----------------------------------------------------------
-# Controller
-#----------------------------------------------------------
-class OAuthLoginCasdoor(OAuthLogin):
+from ..models.res_users import get_login_nonce, get_redirect_uri
+
+
+class CasdoorOAuthLogin(OAuthLogin):
     def list_providers(self):
-        try:
-            providers = request.env['auth.oauth.provider'].sudo().search_read([('enabled', '=', True)])
-        except Exception:
-            providers = []
+        providers = super().list_providers()
         for provider in providers:
-            return_url = request.httprequest.url_root + 'auth_oauth/signin'
+            provider.pop("client_secret", None)
+            if not provider.get("casdoor_endpoint"):
+                continue
+
             state = self.get_state(provider)
-            if provider['name'] == 'Casdoor':
-                params_casdoor = dict(
-                    response_type='code',
-                    client_id=provider['client_id'],
-                    redirect_uri=return_url,
-                    scope=provider['scope'],
-                    state=json.dumps(state),                    
-                )
-                provider['auth_link'] = "%s?%s" % (provider['auth_endpoint'], werkzeug.urls.url_encode(params_casdoor))
-
-            else:
-                params = dict(
-                    response_type='token',
-                    client_id=provider['client_id'],
-                    redirect_uri=return_url,
-                    scope=provider['scope'],
-                    state=json.dumps(state),
-                )                
-
-                provider['auth_link'] = "%s?%s" % (provider['auth_endpoint'], werkzeug.urls.url_encode(params))
-
+            state["n"] = get_login_nonce(request.session)
+            params = {
+                "response_type": "code",
+                "client_id": provider["client_id"],
+                "redirect_uri": get_redirect_uri(request.httprequest),
+                "scope": provider["scope"],
+                "state": json.dumps(state),
+            }
+            provider["auth_link"] = "%s?%s" % (provider["auth_endpoint"], urlencode(params))
         return providers

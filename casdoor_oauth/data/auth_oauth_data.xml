@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="provider_casdoor" model="auth.oauth.provider">
+        <field name="name">Casdoor</field>
+        <field name="casdoor_endpoint">https://door.casdoor.com</field>
+        <field name="auth_endpoint">https://door.casdoor.com/login/oauth/authorize</field>
+        <field name="validation_endpoint">https://door.casdoor.com/api/userinfo</field>
+        <field name="scope">openid profile email</field>
+        <field name="css_class">fa fa-fw fa-key</field>
+        <field name="body">Log in with Casdoor</field>
+        <field name="enabled" eval="False"/>
+    </record>
+</odoo>

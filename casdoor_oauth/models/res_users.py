@@ -1,77 +1,125 @@
-# -*- coding: utf-8 -*-
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-
+# Copyright 2021 The Casdoor Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import hmac
 import json
-import jwt
+import logging
+import secrets
+
 import requests
 
-from odoo import api, fields, models
+from odoo import api, models
 from odoo.exceptions import AccessDenied
+from odoo.http import request
 
-from odoo.addons import base
-base.models.res_users.USER_PRIVATE_FIELDS.append('oauth_access_token')
+_logger = logging.getLogger(__name__)
+
+NONCE_SESSION_KEY = "casdoor_oauth_nonce"
+
+
+def get_login_nonce(session):
+    """Return the nonce put in the state of the Casdoor login link, bound to the browser's session."""
+    nonce = session.get(NONCE_SESSION_KEY)
+    if not nonce:
+        nonce = secrets.token_urlsafe(32)
+        session[NONCE_SESSION_KEY] = nonce
+    return nonce
+
+
+def get_redirect_uri(httprequest):
+    return httprequest.url_root + "auth_oauth/signin"
+
 
 class ResUsers(models.Model):
-    _inherit = 'res.users'
-    
-
-    @api.model
-    def _auth_oauth_rpc(self, endpoint, access_token, provider=None):
-        oauth_provider = self.env['auth.oauth.provider'].browse(provider)        
-        if oauth_provider.name == "Casdoor":
-            casdoor_key = "CasdoorSecret"
-            algorithms = "HS256"
-            return_json = jwt.decode(access_token, casdoor_key, algorithms=algorithms, audience=oauth_provider.client_id)
-            return return_json            
-        else:
-            return super()._auth_oauth_rpc(endpoint, access_token)
-
-    @api.model
-    def _auth_oauth_validate(self, provider, access_token):
-        """ return the validation data corresponding to the access token """        
-        oauth_provider = self.env['auth.oauth.provider'].browse(provider)        
-        validation = self._auth_oauth_rpc(oauth_provider.validation_endpoint, access_token, provider)
-        if validation.get("error"):
-            raise Exception(validation['error'])
-        if oauth_provider.data_endpoint:
-            data = self._auth_oauth_rpc(oauth_provider.data_endpoint, access_token)
-            validation.update(data)
-        return validation
+    _inherit = "res.users"
 
     @api.model
     def auth_oauth(self, provider, params):
-        access_token = params.get('access_token') 
-        oauth_provider = self.env['auth.oauth.provider'].browse(provider)
-        if oauth_provider.name == "Casdoor":
+        oauth_provider = self.env["auth.oauth.provider"].browse(provider)
+        if not oauth_provider.casdoor_endpoint:
+            return super().auth_oauth(provider, params)
 
-            casdoor_params = {
+        if params.get("error"):
+            _logger.info("Casdoor sign-in failed: %s %s", params["error"], params.get("error_description", ""))
+            raise AccessDenied()
+        self._casdoor_check_state(params)
+        if not params.get("code"):
+            # never accept an access token passed in the URL (implicit flow), it could be issued to another app
+            raise AccessDenied()
+
+        access_token = self._casdoor_get_access_token(oauth_provider, params["code"])
+        return super().auth_oauth(provider, dict(params, access_token=access_token))
+
+    @api.model
+    def _casdoor_check_state(self, params):
+        try:
+            nonce = json.loads(params.get("state") or "{}").get("n")
+        except (ValueError, AttributeError):
+            nonce = None
+        expected = request.session.pop(NONCE_SESSION_KEY, None) if request else None
+        if not nonce or not expected or not hmac.compare_digest(str(nonce), expected):
+            _logger.info("Casdoor sign-in failed: invalid state")
+            raise AccessDenied()
+
+    @api.model
+    def _casdoor_get_access_token(self, oauth_provider, code):
+        response = requests.post(
+            oauth_provider._casdoor_token_endpoint(),
+            data={
                 "grant_type": "authorization_code",
                 "client_id": oauth_provider.client_id,
-                "client_secret": oauth_provider.client_secret,
-                "code": params.get('code'),
-            }
-
-            r = requests.post(
-                "http://test.casbin.com:8000/api/login/oauth/access_token", params=casdoor_params
-            )        
-            
-            access_token = r.json().get("access_token")
-            if "access_token" not in params:
-                params["access_token"] = access_token
-        validation = self._auth_oauth_validate(provider, access_token)        
-        # required check
-        if not validation.get('user_id'):
-            # Workaround: facebook does not send 'user_id' in Open Graph Api
-            if validation.get('id'):
-                validation['user_id'] = validation['id']
-            elif validation.get('username'):
-                validation['user_id'] = validation['username']
-            else:
-                raise AccessDenied()
-
-        # retrieve and sign in user
-        login = self._auth_oauth_signin(provider, validation, params)
-        if not login:
+                "client_secret": oauth_provider.sudo().client_secret,
+                "code": code,
+                "redirect_uri": get_redirect_uri(request.httprequest),
+            },
+            timeout=10,
+        )
+        try:
+            token = response.json()
+        except ValueError:
+            token = None
+        if not isinstance(token, dict):
+            token = {}
+        access_token = token.get("access_token")
+        if not access_token or access_token.startswith("error:"):
+            _logger.info(
+                "Casdoor sign-in failed: cannot get the access token: %s",
+                token.get("error_description") or token.get("error") or access_token or response.status_code,
+            )
             raise AccessDenied()
-        # return user credentials
-        return (self.env.cr.dbname, login, access_token)
+        return access_token
+
+    @api.model
+    def _auth_oauth_validate(self, provider, access_token):
+        oauth_provider = self.env["auth.oauth.provider"].browse(provider)
+        if not oauth_provider.casdoor_endpoint:
+            return super()._auth_oauth_validate(provider, access_token)
+
+        response = requests.get(
+            oauth_provider.validation_endpoint,
+            headers={"Authorization": "Bearer %s" % access_token},
+            timeout=10,
+        )
+        try:
+            validation = response.json() if response.ok else {}
+        except ValueError:
+            validation = {}
+        if not isinstance(validation, dict) or not validation.get("sub"):
+            _logger.info("Casdoor sign-in failed: invalid user info: %s", validation)
+            raise AccessDenied()
+        if validation.get("aud") != oauth_provider.client_id:
+            _logger.info("Casdoor sign-in failed: the access token was issued to %s", validation.get("aud"))
+            raise AccessDenied()
+
+        validation["user_id"] = validation.pop("sub")
+        return validation

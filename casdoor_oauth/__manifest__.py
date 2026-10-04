@@ -1,28 +1,20 @@
-# -*- coding: utf-8 -*-
 {
-    'name': "Casdoor OAuth",
-
-    'summary': """OAuth plugin for Odoo by Casdoor""",
-
-    'description': """
-        It uses Casdoor's OAuth feature to log in Odoo for convenience.
-    """,
-
-    'author': "ffyuanda",
-    'website': "https://github.com/casdoor/odoo-casdoor-oauth",
-
-    # Categories can be used to filter modules in modules listing
-    # Check https://github.com/odoo/odoo/blob/14.0/odoo/addons/base/data/ir_module_category_data.xml
-    # for the full list
-    'category': 'Tools',
-    'version': '1.0',
-
-    # any module necessary for this one to work correctly
-    'depends': ['base', 'auth_oauth', 'portal'],
-
-    # always loaded
-    'data': [
-        'views/res_config_settings_views.xml',
-        'data/casdoor_oauth_data.xml',
+    "name": "Casdoor OAuth",
+    "summary": "Sign in to Odoo with Casdoor",
+    "description": """
+Sign in to Odoo with Casdoor (https://casdoor.ai) using the OAuth 2.0 authorization code flow.
+Works with Odoo 14.0 to 19.0.
+""",
+    "author": "Casdoor",
+    "website": "https://github.com/casdoor/odoo-casdoor-oauth",
+    "category": "Tools",
+    "version": "2.0.0",
+    "license": "Other OSI approved licence",
+    "depends": ["auth_oauth"],
+    "data": [
+        "data/auth_oauth_data.xml",
+        "views/auth_oauth_views.xml",
     ],
+    "images": ["static/description/login_page_screenshot.png"],
+    "installable": True,
 }

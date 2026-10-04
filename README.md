@@ -1,104 +1,59 @@
 # odoo-casdoor-oauth
-*Under construction... Feel free to raise issue if you find one!*  
 
-This plugin utilizes Casdoor's OAuth function to log in Odoo for convenience.
+An Odoo module (`casdoor_oauth`) that lets users sign in to Odoo with [Casdoor](https://casdoor.ai). It extends Odoo's own `auth_oauth` module, so Casdoor shows up as a **Log in with Casdoor** button on the login page and users are created and matched the same way as with Odoo's built-in OAuth providers.
 
-View the [**Odoo module**](https://apps.odoo.com/apps/modules/14.0/casdoor_oauth/)
+- Uses the OAuth 2.0 **authorization code flow**: the code is exchanged for an access token on the server with the client secret, and access tokens passed in the URL are never accepted.
+- The `state` carries a random nonce bound to the browser's Odoo session, so a sign-in cannot be started in one browser and finished in another (no login CSRF).
+- The user is read from Casdoor's `/api/userinfo` endpoint; tokens issued to other Casdoor applications are rejected. Odoo users are matched by their immutable Casdoor ID (`sub`), not by name or email.
+- Works with Odoo 14.0 to 19.0 (tested on 18.0 and 19.0).
 
-## Usage
+## Install
 
-1. You need to setup the Odoo instance on your host server, for this step, please reference the latest official Odoo setup [tutorial](https://www.odoo.com/documentation/14.0/developer/howtos/rdtraining/02_setup.html). **Make sure you can correctly setup the Odoo instance before proceeding to next step.**
-
-2. Then you need to setup a Casdoor instance, for which you need to reference the latest official Casdoor setup [tutorial](https://github.com/casbin/casdoor). **Make sure you can correctly setup the Casdoor instance before proceeding to next step.**
-
-3. Get this module by `git`:  
+1. Copy the `casdoor_oauth` folder into one of your Odoo addons paths, e.g.:
 
     ```shell
-    $ git clone https://github.com/casdoor/odoo-casdoor-oauth.git
-    ```
-    or  
-    get the [module](https://apps.odoo.com/apps/modules/14.0/casdoor_oauth/) on `Odoo App Store`.
-
-4. Go to your Odoo instance `src` folder:  
-
-   If your machine is Linux/UNIX, it should be in:  
-
-    ```shell
-    $ cd $HOME/src
+    git clone https://github.com/casdoor/odoo-casdoor-oauth.git
+    ./odoo-bin --addons-path=addons,../odoo-casdoor-oauth -d <database> -i casdoor_oauth
     ```
 
-    If there is not a `custom` folder, then make one and cd into the folder:
+2. In Odoo, open **Apps**, remove the `Apps` filter, search for `Casdoor OAuth` and install it (or use `-i casdoor_oauth` as above). It installs Odoo's `auth_oauth` module as well.
 
-    ```shell
-    $ mkdir custom
-    $ cd custom
-    ```
+## Configure
 
-5. Place the cloned or downloaded (if you get it from Odoo App Store, you need to unzip the zip file to see the `casdoor_oauth` folder) `casdoor_oauth` folder here.  
+1. In Casdoor, open your application and add your Odoo URL followed by `/auth_oauth/signin` to **Redirect URLs**, e.g. `https://odoo.example.com/auth_oauth/signin`. Note its **Client ID** and **Client secret**.
 
-6. Make sure you install all the dependencies:  
+    ![Casdoor application](casdoor_oauth/static/description/id_secret_url.png)
 
-    ```shell
-    $ cd casdoor_oauth
-    $ pip install -r requirements.txt
-    ```
+2. In Odoo, open **Settings > Users & Companies > Casdoor** (as an administrator) and fill in:
 
-7. Go back to the `odoo` folder:
-    ```shell
-    $ cd $HOME/src/odoo
-    ```
-    and run the following command
+    | Field         | Value                                                                                       |
+    | ------------- | ------------------------------------------------------------------------------------------- |
+    | Client ID     | Client ID of the Casdoor application                                                        |
+    | Client Secret | Client secret of the Casdoor application                                                    |
+    | Casdoor URL   | URL of your Casdoor server, e.g. `https://door.casdoor.com`. The authorization and user info URLs are filled in from it |
+    | Allowed       | Check it to show the button on the login page                                               |
+    | Scope         | `openid profile email` (the default), so that Odoo gets the user's name and email           |
 
-    ```shell
-    $ ./odoo-bin --addons-path=../custom,addons -d rd-demo -u casdoor_oauth
-    ```
-    > Hint: `-d` means the database you want to use and `-u` means the module you want to update. Detailed usage and tutorial should be read [here](https://www.odoo.com/documentation/14.0/developer/howtos/rdtraining/04_basicmodel.html#object-relational-mapping).
+    The same fields are on every provider under **Settings > Users & Companies > OAuth Providers** (developer mode): any provider with a Casdoor URL is handled as a Casdoor provider, so you can add several Casdoor servers or applications.
 
-8. If everything worked out so far, you should go to your running Odoo instance and go to its Apps page by clicking the top-left menu icon, select `Apps`  
+3. To let Casdoor users without an Odoo account sign in, enable **Settings > General Settings > Permissions > Customer Account: Free sign up** (`auth_signup.invitation_scope = b2c`); new users are created as portal users with their Casdoor email as login. Otherwise only users that already exist in Odoo, or that you invite, can sign in with Casdoor.
 
-    ![Apps](/casdoor_oauth/static/description/Apps.png)
+4. Sign out and click **Log in with Casdoor** on the login page.
 
-    In the search box, cancel the `Apps` filter (because `casdoor_oauth` is a `Tool`).
+    ![Login page](casdoor_oauth/static/description/login_page_screenshot.png)
 
-    Then search for `casdoor_oauth`, it should pop up!
+## Upgrading from 1.0
 
-    ![search result](/casdoor_oauth/static/description/casdoor_oauth.png)
+Version 1.0 called a hard-coded token URL and verified tokens with a hard-coded key, so it did not work with real Casdoor servers. After upgrading, open **Settings > Users & Companies > Casdoor**, fill in the **Casdoor URL**, check the client secret and set the scope to `openid profile email`. The settings page under **Settings > Casdoor OAuth** is gone; the module no longer needs PyJWT.
 
-    Click `install`.  
+## Development
 
-9. After the install finished, redo `Step 7` above.
+The tests use Odoo's test runner:
 
-10. Now go to the top-left menu and click `Settings`, and you should be able to see the `Casdoor OAuth` tab in the left pane.
+```shell
+./odoo-bin --addons-path=addons,../odoo-casdoor-oauth -d casdoor_test -i casdoor_oauth --test-enable --test-tags /casdoor_oauth --stop-after-init
+```
 
+## License
 
-    ![Settings Screenshot](/casdoor_oauth/static/description/settings.png)
-
-    Fill in the `Casdoor Authentication URL` in this format (replace the `YOUR.SERVER.URL` with your own Casdoor instance's URL):
-    ```shell
-    YOUR.SERVER.URL/login/oauth/authorize
-    ```
-11. 
-    Then go to your Casdoor instance, click the `Applications` tab on the top navbar.
-
-    ![casdoor applications](/casdoor_oauth/static/description/casdoor_app.png)
-
-    Select your specified application and find the `Client ID` and `Client secret` in the settings page.
-
-    Below the two fields, there is a field called `Redirect URLs`, make sure you fill it in this format (replace the `YOUR.ODOO.INSTANCE.URL` with your Odoo instance's URL):
-    ```shell
-    YOUR.ODOO.INSTANCE.URL/auth_oauth/signin
-    ```
-
-    ![id and secret](/casdoor_oauth/static/description/id_secret_url.png)    
-
-    You should copy these two info and go back to the Odoo setting page and paste them into your `Casdoor Client ID` and `Casdoor Client Secret` fields, respectively.
-
-    Then make sure the `Active` checkbox is selected.
-
-    **Remember to click the `Save` button on the top left corner before you leave the page!** 
-
-11. By now everything is good to go! Try log out your current user and on the login page you should be able to see the option `Log in with Casdoor`:
-
-    ![Login Screenshot](/casdoor_oauth/static/description/login_page_screenshot.png)
-
-    Click on it and log into Odoo using Casdoor!
+[Apache 2.0](LICENSE)

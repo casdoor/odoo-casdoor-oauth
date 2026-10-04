@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_oauth_provider_form" model="ir.ui.view">
+        <field name="name">auth.oauth.provider.form.casdoor</field>
+        <field name="model">auth.oauth.provider</field>
+        <field name="inherit_id" ref="auth_oauth.view_oauth_provider_form"/>
+        <field name="arch" type="xml">
+            <field name="client_id" position="after">
+                <field name="client_secret" password="True"/>
+                <field name="casdoor_endpoint" placeholder="https://door.casdoor.com"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="action_casdoor_provider" model="ir.actions.act_window">
+        <field name="name">Casdoor</field>
+        <field name="res_model">auth.oauth.provider</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="provider_casdoor"/>
+    </record>
+
+    <menuitem id="menu_casdoor_provider" name="Casdoor" parent="base.menu_users" sequence="31"
+              action="action_casdoor_provider" groups="base.group_system"/>
+</odoo>
