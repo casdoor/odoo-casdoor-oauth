@@ -7,12 +7,16 @@ An Odoo module (`casdoor_oauth`) that lets users sign in to Odoo with [Casdoor](
 - The user is read from Casdoor's `/api/userinfo` endpoint; tokens issued to other Casdoor applications are rejected. Odoo users are matched by their immutable Casdoor ID (`sub`), not by name or email.
 - Works with Odoo 14.0 to 19.0 (tested on 18.0 and 19.0).
 
+## Branches
+
+The branches `14.0`, `18.0` and `19.0` contain the same code, which works on Odoo 14.0 to 19.0. They exist because the [Odoo Apps store](https://apps.odoo.com) lists a module once per Odoo version branch; use the branch of your Odoo version, or any of them.
+
 ## Install
 
 1. Copy the `casdoor_oauth` folder into one of your Odoo addons paths, e.g.:
 
     ```shell
-    git clone https://github.com/casdoor/odoo-casdoor-oauth.git
+    git clone -b 19.0 https://github.com/casdoor/odoo-casdoor-oauth.git
     ./odoo-bin --addons-path=addons,../odoo-casdoor-oauth -d <database> -i casdoor_oauth
     ```
 

@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - '14.0'
+      - '18.0'
+      - '19.0'
   pull_request:
 
 jobs:
