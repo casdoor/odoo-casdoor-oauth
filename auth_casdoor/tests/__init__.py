@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import test_casdoor_oauth
+from . import test_auth_casdoor

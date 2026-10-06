@@ -56,6 +56,6 @@ jobs:
           python odoo/odoo-bin -d casdoor_test \
             --db_host=localhost --db_user=odoo --db_password=odoo \
             --addons-path=odoo/addons,odoo-casdoor-oauth \
-            -i casdoor_oauth --test-enable --test-tags /casdoor_oauth \
+            -i auth_casdoor --test-enable --test-tags /auth_casdoor \
             --stop-after-init --http-interface=127.0.0.1 2>&1 | tee odoo.log
           grep -q "odoo.tests.result: 0 failed, 0 error(s) of" odoo.log

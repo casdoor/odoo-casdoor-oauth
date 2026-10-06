@@ -24,7 +24,7 @@ from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
-NONCE_SESSION_KEY = "casdoor_oauth_nonce"
+NONCE_SESSION_KEY = "auth_casdoor_nonce"
 
 
 def get_login_nonce(session):

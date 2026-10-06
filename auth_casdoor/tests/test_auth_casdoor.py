@@ -45,7 +45,7 @@ class FakeResponse:
 class TestCasdoorOAuth(TransactionCase):
     def setUp(self):
         super().setUp()
-        self.provider = self.env.ref("casdoor_oauth.provider_casdoor")
+        self.provider = self.env.ref("auth_casdoor.provider_casdoor")
         self.provider.write(
             {
                 "casdoor_endpoint": "https://casdoor.example.com/",
