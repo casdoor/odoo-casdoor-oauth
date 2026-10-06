@@ -15,6 +15,8 @@ On `18.0` and `19.0` the module is named `auth_casdoor`; on `14.0` it keeps its 
 
 ## Install
 
+Install it from the Odoo Apps store: [19.0](https://apps.odoo.com/apps/modules/19.0/auth_casdoor), [18.0](https://apps.odoo.com/apps/modules/18.0/auth_casdoor), [14.0](https://apps.odoo.com/apps/modules/14.0/casdoor_oauth) (as `casdoor_oauth`). Or from source:
+
 1. Copy the `auth_casdoor` folder into one of your Odoo addons paths, e.g.:
 
     ```shell
