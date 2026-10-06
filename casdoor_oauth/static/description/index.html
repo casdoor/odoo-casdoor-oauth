@@ -1,0 +1,90 @@
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan" style="color:#875A7B;">Casdoor OAuth</h2>
+        <h3 class="oe_slogan">Log in to Odoo with Casdoor</h3>
+        <div class="oe_span12">
+            <p class="oe_mt32">
+                <a href="https://casdoor.ai" target="_blank">Casdoor</a> is an open-source identity and access management (IAM) / single sign-on (SSO) platform.
+                This module adds a <b>Log in with Casdoor</b> button to the Odoo login page, so your users can sign in to Odoo with the same account they use for your other applications.
+            </p>
+            <div class="oe_demo oe_picture oe_screenshot">
+                <img src="banner.png" alt="Casdoor OAuth"/>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Features</h2>
+        <div class="oe_span12">
+            <ul>
+                <li>Extends Odoo's own <code>auth_oauth</code> module: users are created and matched the same way as with Odoo's built-in OAuth providers.</li>
+                <li>Uses the OAuth 2.0 <b>authorization code flow</b>: the code is exchanged for an access token on the server with the client secret, and access tokens passed in the URL are never accepted.</li>
+                <li>The <code>state</code> carries a random nonce bound to the browser's Odoo session, so a sign-in cannot be started in one browser and finished in another (no login CSRF).</li>
+                <li>The user is read from Casdoor's <code>/api/userinfo</code> endpoint; tokens issued to other Casdoor applications are rejected.</li>
+                <li>Odoo users are matched by their immutable Casdoor ID (<code>sub</code>), not by name or email.</li>
+                <li>Works with your own Casdoor server or Casdoor Cloud, and with several Casdoor servers or applications at the same time.</li>
+                <li>Works with Odoo 14.0 to 19.0.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Configuration</h2>
+        <div class="oe_span12">
+            <h3>1. Create an application in Casdoor</h3>
+            <p>
+                In Casdoor, open your application and add your Odoo URL followed by <code>/auth_oauth/signin</code> to <b>Redirect URLs</b>,
+                e.g. <code>https://odoo.example.com/auth_oauth/signin</code>. Note its <b>Client ID</b> and <b>Client secret</b>.
+            </p>
+            <div class="oe_demo oe_picture oe_screenshot">
+                <img src="id_secret_url.png" alt="Casdoor application"/>
+            </div>
+
+            <h3 class="oe_mt32">2. Fill in the Casdoor provider in Odoo</h3>
+            <p>As an administrator, open <b>Settings &gt; Users &amp; Companies &gt; Casdoor</b> and fill in:</p>
+            <table class="table table-bordered">
+                <tr><th>Client ID</th><td>Client ID of the Casdoor application</td></tr>
+                <tr><th>Client Secret</th><td>Client secret of the Casdoor application</td></tr>
+                <tr><th>Casdoor URL</th><td>URL of your Casdoor server, e.g. <code>https://door.casdoor.com</code>. The authorization and user info URLs are filled in from it</td></tr>
+                <tr><th>Allowed</th><td>Check it to show the button on the login page</td></tr>
+                <tr><th>Scope</th><td><code>openid profile email</code> (the default), so that Odoo gets the user's name and email</td></tr>
+            </table>
+            <p>
+                The same fields are on every provider under <b>Settings &gt; Users &amp; Companies &gt; OAuth Providers</b> (developer mode):
+                any provider with a Casdoor URL is handled as a Casdoor provider.
+            </p>
+            <div class="oe_demo oe_picture oe_screenshot">
+                <img src="oauth_providers_screenshot.png" alt="OAuth providers"/>
+            </div>
+
+            <h3 class="oe_mt32">3. Let new users sign up (optional)</h3>
+            <p>
+                To let Casdoor users without an Odoo account sign in, enable <b>Settings &gt; General Settings &gt; Permissions &gt; Customer Account: Free sign up</b>;
+                new users are created as portal users with their Casdoor email as login.
+                Otherwise only users that already exist in Odoo, or that you invite, can sign in with Casdoor.
+            </p>
+
+            <h3 class="oe_mt32">4. Log in</h3>
+            <p>Sign out and click <b>Log in with Casdoor</b> on the login page.</p>
+            <div class="oe_demo oe_picture oe_screenshot" style="max-width:360px; margin:auto;">
+                <img src="login_page_screenshot.png" alt="Login page"/>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Support</h2>
+        <div class="oe_span12 text-center">
+            <p>
+                Source code and issues: <a href="https://github.com/casdoor/odoo-casdoor-oauth" target="_blank">github.com/casdoor/odoo-casdoor-oauth</a><br/>
+                Casdoor documentation: <a href="https://casdoor.ai/docs/overview/" target="_blank">casdoor.ai/docs</a>
+            </p>
+        </div>
+    </div>
+</section>

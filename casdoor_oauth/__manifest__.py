@@ -15,6 +15,6 @@ Works with Odoo 14.0 to 19.0.
         "data/auth_oauth_data.xml",
         "views/auth_oauth_views.xml",
     ],
-    "images": ["static/description/login_page_screenshot.png"],
+    "images": ["static/description/banner.png"],
     "installable": True,
 }
